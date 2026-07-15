@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Banka Bağla – NAKITDEFTER{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Banka Bağla</h1>
+  <p class="page-sub">Banka hesabınızı bağlayın, işlemler otomatik aktarılsın.</p>
+</div>
+
+<!-- Connected banks -->
+{% if linked %}
+<section class="bank-section">
+  <h2 class="section-title">Bağlı Hesaplar</h2>
+  <div class="bank-grid">
+    {% for acc in linked %}
+    <div class="bank-card connected">
+      <div class="bank-card-top">
+        <div class="bank-logo-circle">{{ acc.bank_name[0] }}</div>
+        <div>
+          <p class="bank-card-name">{{ acc.bank_name }}</p>
+          <p class="bank-card-no">{{ acc.account_no }}</p>
+        </div>
+        <span class="connected-badge">Bağlı</span>
+      </div>
+      <div class="bank-card-balance">
+        <span class="balance-label">Bakiye</span>
+        <span class="balance-val">₺{{ "{:,.2f}".format(acc.balance) }}</span>
+      </div>
+      <form method="POST" action="/bank/disconnect">
+        <input type="hidden" name="bank_name" value="{{ acc.bank_name }}">
+        <button class="disconnect-btn" type="submit">Bağlantıyı Kes</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Available banks -->
+<section class="bank-section">
+  <h2 class="section-title">Banka Seç</h2>
+  <p class="bank-note">Bağlamak istediğiniz bankayı seçin. Demo modunda gerçek bilgi gerekmez.</p>
+  <div class="bank-grid">
+    {% for name in all_banks %}
+    <div class="bank-card {% if name in linked_names %}dimmed{% endif %}">
+      <div class="bank-logo-circle big">{{ name[0] }}</div>
+      <p class="bank-card-name">{{ name }}</p>
+      {% if name in linked_names %}
+        <span class="connected-badge">Bağlı ✓</span>
+      {% else %}
+        <button class="connect-btn" onclick="openModal('{{ name }}')">Bağla</button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Mock OAuth modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-bank-logo" id="modalLogo"></div>
+    <h3 id="modalTitle">Banka Girişi</h3>
+    <p class="modal-sub">Güvenli demo bağlantısı — gerçek bilgi gerekmez</p>
+    <form method="POST" action="/bank/connect" id="modalForm">
+      <input type="hidden" name="bank_name" id="modalBankName">
+      <input type="text"     placeholder="Kullanıcı adı veya T.C. No" required>
+      <input type="password" placeholder="Şifre" required>
+      <button type="button" class="modal-btn" onclick="submitConnect()">Giriş Yap ve İzin Ver</button>
+    </form>
+    <button class="modal-cancel" onclick="closeModal()">İptal</button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openModal(bankName) {
+  document.getElementById("modalBankName").value = bankName;
+  document.getElementById("modalTitle").textContent = bankName + " Girişi";
+  document.getElementById("modalLogo").textContent  = bankName[0];
+  document.getElementById("modalOverlay").classList.add("show");
+}
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("show");
+}
+function submitConnect() {
+  /* Simulate a short loading pause for realism */
+  const btn = document.querySelector(".modal-btn");
+  btn.textContent = "Bağlanıyor...";
+  btn.disabled = true;
+  setTimeout(() => document.getElementById("modalForm").submit(), 1200);
+}
+</script>
+{% endblock %}

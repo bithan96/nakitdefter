@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Doğrulama</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="auth-bg">
+
+   <div class="app-header">
+        <div class="app-title">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+            <span>NAKITDEFTER</span>
+        </div>
+        <div class="app-divider"></div>
+    </div>
+    <body class="auth-bg">
+
+<div class="auth-container">
+    <div class="auth-box">
+
+        <h2 class="box-title">Email Doğrulama</h2>
+
+        <form method="POST">
+            <input type="text" name="code"
+                   placeholder="6 haneli kod"
+                   required class="input-large">
+
+            <button type="submit" class="auth-btn">
+                Doğrula
+            </button>
+        </form>
+
+        <form method="POST" action="{{ url_for('resend_code') }}">
+            <button type="submit" class="secondary-btn ">
+                Kodu Tekrar Gönder
+            </button>
+        </form>
+
+        <div class="auth-link">
+            <a href="{{ url_for('login') }}">Giriş sayfasına dön</a>
+        </div>
+
+        <p id="timer"></p>
+
+    </div>
+
+
+<script>
+    let time = 300; // 5 minutes
+
+    function updateTimer() {
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        document.getElementById("timer").innerText =
+            "Kod süresi: " + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+        if (time > 0) {
+            time--;
+            setTimeout(updateTimer, 1000);
+        } else {
+            document.getElementById("timer").innerText = "Kod süresi doldu!";
+        }
+    }
+
+    updateTimer();
+</script>
+
+</body>
+</html>

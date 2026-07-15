@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}NAKITDEFTER{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% block head %}{% endblock %}
+</head>
+<body class="app-layout">
+
+<!-- SIDEBAR — nav links only, no profile -->
+<aside class="sidebar">
+
+  <div class="sb-brand">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" class="sb-logo">
+    <span class="sb-brand-name">NAKİTDEFTER</span>
+  </div>
+
+  <nav class="sb-nav">
+
+    <a href="{{ url_for('dashboard') }}"
+       class="sb-link {% if request.endpoint=='dashboard' %}active{% endif %}">
+      <span class="material-icons">dashboard</span>
+      <span class="sb-link-text">Dashboard</span>
+    </a>
+
+    <a href="{{ url_for('dashboard') }}#kayit" class="sb-link">
+      <span class="material-icons">add_circle_outline</span>
+      <span class="sb-link-text">Yeni Kayıt</span>
+    </a>
+
+    <a href="{{ url_for('dashboard') }}#analiz" class="sb-link">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="2,15 6,8 10,12 14,5 18,9"/>
+      </svg>
+      <span class="sb-link-text">Analizler</span>
+    </a>
+
+    <a href="{{ url_for('dashboard') }}#islemler" class="sb-link sb-link-sub">
+      <span class="material-icons">receipt_long</span>
+      <span class="sb-link-text">Son İşlemler</span>
+    </a>
+
+    <a href="{{ url_for('bank') }}"
+       class="sb-link bank-link {% if request.endpoint=='bank' %}active{% endif %}">
+      <span class="material-icons">account_balance</span>
+      <span class="sb-link-text">Banka Bağla</span>
+    </a>
+
+    <a href="{{ url_for('calculator') }}"
+       class="sb-link {% if request.endpoint=='calculator' %}active{% endif %}">
+      <span class="material-icons">calculate</span>
+      <span class="sb-link-text">Hesap Makinesi</span>
+    </a>
+
+  </nav>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="mainContent">
+
+  <!-- TOP HEADER BAR — page title left, profile right -->
+  <div class="app-topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">{% block page_title %}{% endblock %}</span>
+    </div>
+    <div class="topbar-right">
+
+      <!-- Profile button -->
+      <button class="profile-btn" id="profileBtn" aria-label="Profil menüsü">
+      <img src="{{ url_for('static', filename='profile_pics/' + session.get('profile_pic','default.png')) }}"
+       class="profile-btn-avatar">
+      </button>
+
+      <!-- Profile dropdown — Google style -->
+      <div class="profile-dropdown" id="profileDropdown">
+
+        <!-- User info card at top -->
+        <div class="pd-user-card">
+          <img src="{{ url_for('static', filename='profile_pics/' + session.get('profile_pic','default.png')) }}"
+               class="pd-avatar">
+          <div class="pd-user-info">
+            <p class="pd-name">{{ session.get('username') }}</p>
+            <p class="pd-email">{{ session.get('email') }}</p>
+          </div>
+        </div>
+
+        <hr class="pd-divider">
+
+        <!-- Links -->
+        <a href="/upload_photo"    class="pd-link">
+          <span class="material-icons">photo_camera</span>
+          Profil Fotoğrafı
+        </a>
+        <a href="/change_password" class="pd-link">
+          <span class="material-icons">vpn_key</span>
+          Şifre Değiştir
+        </a>
+        <a href="/delete_account"  class="pd-link pd-danger">
+          <span class="material-icons">warning</span>
+          Hesabı Sil
+        </a>
+
+        <hr class="pd-divider">
+
+        <a href="/logout" class="pd-link">
+          <span class="material-icons">logout</span>
+          Çıkış Yap
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap" id="flashWrap">
+    {% for cat, msg in messages %}
+    <div class="alert {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+</main>
+
+<script>
+  /* Profile dropdown toggle */
+  const profileBtn  = document.getElementById("profileBtn");
+  const profileDrop = document.getElementById("profileDropdown");
+
+  profileBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    profileDrop.classList.toggle("show");
+    profileBtn.classList.toggle("open");
+  });
+  document.body.addEventListener("click", () => {
+    profileDrop.classList.remove("show");
+    profileBtn.classList.remove("open");
+  });
+  profileDrop.addEventListener("click", e => e.stopPropagation());
+
+  /* Auto-dismiss flash messages after 3 seconds */
+  const flashWrap = document.getElementById("flashWrap");
+  if (flashWrap) {
+    setTimeout(() => {
+      flashWrap.style.transition = "opacity 0.5s ease";
+      flashWrap.style.opacity = "0";
+      setTimeout(() => flashWrap.remove(), 500);
+    }, 3000);
+  }
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

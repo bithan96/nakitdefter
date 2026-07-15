@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <title>NDEFTER – Giriş Yapın</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body class="auth-bg">
+
+   <div class="app-header">
+        <div class="app-title">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+            <span>NAKITDEFTER</span>
+        </div>
+        <div class="app-divider"></div>
+    </div>
+    <!-- Center area -->
+    <div class="auth-container">
+        <h1 class="welcome-title">Hoş Geldiniz 👋</h1>
+
+        <div class="auth-box">
+            <h2 class="box-title">Giriş Yapın</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert {{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+            <form action="/login" method="POST" id="loginForm" novalidate>
+
+                <!-- Username -->
+                <input 
+                    type="text" 
+                    id="login-username"
+                    name="username" 
+                    placeholder="Kullanıcı Adı"
+                    class="input-large"
+                    required
+                >
+
+                <!-- Email -->
+                <input 
+                    
+                   type="password"
+                   name="password"
+                   placeholder="Şifre"
+                   required
+                   class="input-large"
+
+                >
+
+                <button type="submit" class="auth-btn">Giriş Yap</button>
+            </form>
+            
+            <p class="redirect-text">
+                Bir hesabınız yok mu?
+                <a href="/signup">Kayıt Ol</a>
+                <div class="auth-link">
+            <a href="{{ url_for('forgot_password') }}">Şifremi unuttum</a>
+                </div>
+                </p>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById('loginForm');
+        const inputs = form.querySelectorAll("input[required]");
+
+        inputs.forEach(input => {
+            // on invalid, prevent browser default and set Turkish message
+            input.addEventListener("invalid", event => {
+                event.preventDefault();
+                input.setCustomValidity("Lütfen bu alanı doldurun.");
+            });
+
+           
+            input.addEventListener("input", () => input.setCustomValidity(""));
+            input.addEventListener("focus", () => input.setCustomValidity(""));
+            input.addEventListener("mouseover", () => input.setCustomValidity(""));
+        });
+
+        
+        form.addEventListener("submit", function(e) {
+    
+            for (const input of inputs) {
+                if (!input.value.trim()) {
+                    
+                    input.reportValidity();
+                    e.preventDefault();
+                    return;
+                }
+            }
+           
+        });
+    });
+    </script>
+
+</body>
+</html>

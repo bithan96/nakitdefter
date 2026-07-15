@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – NAKITDEFTER{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+{% block page_title %}Genel Bakış{% endblock %}
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <p class="stat-label">Toplam Gelir</p>
+    <p class="stat-value">₺{{ "{:,.0f}".format(income) }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-label">Toplam Gider</p>
+    <p class="stat-value">₺{{ "{:,.0f}".format(expense) }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-label">Birikim</p>
+    <p class="stat-value">₺{{ "{:,.0f}".format(savings) }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-label">Kalan Bütçe</p>
+    <p class="stat-value">
+      {% if income > 0 %}{{ ((savings/income)*100)|round(1) }}%{% else %}0%{% endif %}
+    </p>
+  </div>
+</div>
+
+<!-- ROW 1: New entry | Donut chart -->
+<div class="dash-row" id="kayit">
+
+  <div class="dash-box box-entry">
+    <h2>Yeni Kayıt Ekle</h2>
+    <form method="POST" class="entry-form">
+      <input type="text"   name="title"  placeholder="Açıklama" required>
+      <input type="number" name="amount" placeholder="Tutar (₺)" step="any" min="0.01" required>
+      <select name="type" required>
+        <option value="income">Gelir</option>
+        <option value="expense">Gider</option>
+      </select>
+      <button type="submit">Ekle</button>
+    </form>
+  </div>
+
+  <div class="dash-box box-donut">
+    <h2>Gelir / Gider Dağılımı</h2>
+    <canvas id="donutChart"
+      data-income="{{ income }}"
+      data-expense="{{ expense }}"
+      data-label-income="Gelir"
+      data-label-expense="Gider">
+    </canvas>
+  </div>
+
+</div>
+
+<!-- ROW 2: Goal form | Analytics -->
+<div class="dash-row" id="analiz">
+
+  <div class="dash-box box-goal">
+    <h2>Tasarruf Hedefi</h2>
+    <form method="POST" action="/set_goal" class="goal-form">
+
+      <input type="text" name="goal_name"
+             placeholder="Hedef adı (örn. Tatil)"
+             maxlength="40" value="{{ goal_name or '' }}" required>
+
+      <input type="number" name="target"
+             placeholder="Hedef Tutar (₺)"
+             min="1" step="any" value="{{ goal or '' }}" required>
+
+      <p class="field-label">Hedef Süresi</p>
+
+      <div class="date-row">
+        <div class="date-group">
+          <span class="date-label">Başlangıç</span>
+          <input type="hidden" name="start_date" id="startVal" value="{{ goal_start_date or '' }}">
+          <input type="text"   id="startPick" readonly placeholder="Tarih seçin">
+        </div>
+        <div class="date-group">
+          <span class="date-label">Bitiş</span>
+          <input type="hidden" name="end_date" id="endVal" value="{{ goal_end_date or '' }}">
+          <input type="text"   id="endPick" readonly placeholder="Tarih seçin">
+        </div>
+      </div>
+
+      <button type="submit">Kaydet</button>
+    </form>
+  </div>
+
+  <div class="dash-box box-analytics">
+
+    {% if goal and months_data %}
+    <div class="analytics-card">
+
+      <div class="ac-header">
+        <div>
+          <p class="ac-name">{{ goal_name }}</p>
+          <p class="ac-sub">
+            {{ total_months }} aylık hedef
+            &nbsp;·&nbsp;
+            aylık ₺{{ "{:,.0f}".format(monthly_target) }}
+            gerekli
+          </p>
+        </div>
+        <div class="ac-right">
+          <p class="ac-amount">
+            ₺{{ "{:,.0f}".format([cumulative_saved,0]|max) }}
+            <span>/ ₺{{ "{:,.0f}".format(goal) }}</span>
+          </p>
+          <p class="ac-pct">{{ [goal_pct,0]|max }}% tamamlandı</p>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="goalFill" data-pct="{{ [goal_pct,0]|max }}"></div>
+      </div>
+      <div class="progress-labels">
+        <span>₺0</span>
+        <span class="mid">₺{{ "{:,.0f}".format([cumulative_saved,0]|max) }} birikti</span>
+        <span>₺{{ "{:,.0f}".format(goal) }}</span>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="goalChart"
+          data-months='{{ months_data|tojson }}'
+          data-saved='{{ saved_data|tojson }}'
+          data-target='{{ target_data|tojson }}'
+          >
+        </canvas>
+      </div>
+
+      <div class="chart-legend">
+        <span><i class="ldot" style="background:#1d70b9"></i>Hedefe ulaştı</span>
+        <span><i class="ldot" style="background:#a8c4e0"></i>Hedefin altında</span>
+        <span><i class="ldot" style="background:#c8dff5;border:1px solid #b0cce8"></i>Gelecek aylar</span>
+        <span><i class="ldot" style="background:transparent;border:1.5px dashed #6b8cbb;border-radius:2px"></i>Aylık hedef</span>
+      </div>
+
+    </div>
+    {% else %}
+    <div class="no-data">
+      <span class="material-icons nd-icon">track_changes</span>
+      <p>Henüz bir tasarruf hedefi belirlemediniz.</p>
+      <p class="nd-sub">Soldaki formu doldurun.</p>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+<!-- ROW 3: Transactions -->
+<div class="dash-row" id="islemler">
+  <div class="dash-box box-tx">
+    <h2>Son İşlemler</h2>
+
+    <input type="text" id="searchInput"
+           placeholder="İşlem ara..."
+           class="search-input">
+
+    <div class="tx-list">
+      {% for t in transactions %}
+      <div class="tx-card">
+        <div class="tx-info">
+          <strong>{{ t[1] }}</strong>
+          <span class="tx-type">{{ 'Gelir' if t[3]=='income' else 'Gider' }}</span>
+        </div>
+        <div class="tx-right">
+          <span class="tx-amount {{ t[3] }}">₺{{ "{:,.2f}".format(t[2]) }}</span>
+          <span class="tx-date">{{ t[4][:10] }}</span>
+          <form method="POST" action="{{ url_for('delete', tx_id=t[0]) }}" style="margin:0">
+            <button class="del-btn" type="submit">Sil</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center;margin-top:12px">
+      <a href="#" class="show-all-btn" id="showAllBtn">
+        Tümünü Gör
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  
+
+  /* Progress bar */
+  const fill = document.getElementById("goalFill");
+  if (fill) fill.style.width = Math.max(0, Math.min(100, parseFloat(fill.dataset.pct)||0)) + "%";
+
+  /* Flatpickr */
+  const sv = document.getElementById("startVal");
+  const ev = document.getElementById("endVal");
+  if (sv) {
+    const locale = "tr";
+    const sp = flatpickr("#startPick", {
+      locale, dateFormat:"Y-m-d", altInput:true, altFormat:"d F Y",
+      defaultDate: sv.value || null,
+      onChange(_, d) {
+        sv.value = d;
+        ep.set("minDate", d);
+        if (ev.value && ev.value <= d) { ev.value = ""; ep.clear(); }
+      }
+    });
+    const ep = flatpickr("#endPick", {
+      locale, dateFormat:"Y-m-d", altInput:true, altFormat:"d F Y",
+      defaultDate: ev.value || null,
+      minDate: sv.value || null,
+      onChange(_, d) { ev.value = d; }
+    });
+  }
+
+  /* Donut chart */
+  const dc = document.getElementById("donutChart");
+  if (dc) {
+    new Chart(dc, {
+      type: "doughnut",
+      data: {
+        labels: [dc.dataset.labelIncome, dc.dataset.labelExpense],
+        datasets: [{
+          data: [+dc.dataset.income, +dc.dataset.expense],
+          backgroundColor: ["#1d70b9","#ff4d6d"],
+          borderWidth: 2,
+          borderColor: "#f0f4ff"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position:"top" },
+          tooltip: { callbacks: { label: c => " " + c.label + ": ₺" + c.parsed.toLocaleString("tr-TR") } }
+        }
+      }
+    });
+  }
+
+  /* Goal bar chart */
+  const gc = document.getElementById("goalChart");
+  if (gc) {
+    const TR = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+    const MO = TR;
+
+    const rl = JSON.parse(gc.dataset.months);
+    const rs = JSON.parse(gc.dataset.saved);
+    const rt = JSON.parse(gc.dataset.target);
+
+    const lbl = rl.map(m => { const p=m.split("-"); return MO[+p[1]-1]+" '"+p[0].slice(2); });
+
+    while (lbl.length < 4) {
+      const p = rl[rl.length-1].split("-");
+      let y=+p[0], m=+p[1]+1;
+      if (m>12) { m=1; y++; }
+      rl.push(`${y}-${String(m).padStart(2,"0")}`);
+      lbl.push(MO[m-1]+" '"+String(y).slice(2));
+      rs.push(null);
+      rt.push(rt[rt.length-1]||0);
+    }
+
+    const mt = rt[0]||0;
+    const bd = rs.map(v => v===null ? null : Math.max(0,v));
+    const fd = rs.map(v => v===null ? Math.max(mt*0.28,60) : null);
+    const bc = bd.map(v => v===null ? "transparent" : v>=mt ? "#1d70b9" : "#a8c4e0");
+
+    const noData   = "Henüz veri yok";
+    const lblSaved = "Birikim";
+    const lblGoal  = "Aylık Hedef";
+
+    new Chart(gc, {
+      type: "bar",
+      data: { labels: lbl, datasets: [
+        { label:lblSaved,  data:bd, backgroundColor:bc, borderRadius:5, categoryPercentage:.7, barPercentage:.9, order:2 },
+        { label:"Gelecek", data:fd, backgroundColor:"#c8dff5", borderColor:"#b0cce8", borderWidth:1, borderRadius:5, categoryPercentage:.7, barPercentage:.9, order:2 },
+        { label:lblGoal,   data:rt, type:"line", borderColor:"#6b8cbb", borderDash:[6,4], borderWidth:2, pointRadius:0, fill:false, tension:0, order:1 }
+      ]},
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins: {
+          legend: { display:false },
+          tooltip: {
+            mode:"index", intersect:false,
+            backgroundColor:"#1a3a5c", titleColor:"#a8c4e0", bodyColor:"#fff", padding:10, cornerRadius:8,
+            callbacks: {
+              title: i => i[0].label,
+              label: c => {
+                if (c.dataset.label==="Gelecek") return "  "+noData;
+                if (c.dataset.label===lblGoal)   return "  "+lblGoal+": ₺"+c.parsed.y.toLocaleString("tr-TR");
+                if (c.raw===null) return null;
+                return "  "+lblSaved+": ₺"+c.parsed.y.toLocaleString("tr-TR");
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid:{display:false}, ticks:{color:"#5a7fa8",font:{size:12}} },
+          y: { grid:{color:"rgba(100,150,200,.12)"}, ticks:{color:"#5a7fa8",font:{size:11},callback:v=>"₺"+v.toLocaleString("tr-TR")}, min:0, suggestedMax:mt*1.3 }
+        }
+      }
+    });
+  }
+
+  /* Show all / search */
+  const cards = [...document.querySelectorAll(".tx-card")];
+  let showAll = false;
+  cards.forEach((c,i) => { if(i>=4) c.style.display="none"; });
+  document.getElementById("showAllBtn")?.addEventListener("click", e => {
+    e.preventDefault(); cards.forEach(c => c.style.display=""); showAll=true;
+  });
+  document.addEventListener("click", e => {
+    if (showAll && !e.target.closest(".tx-box")) {
+      cards.forEach((c,i) => { if(i>=4) c.style.display="none"; });
+      showAll=false;
+    }
+  });
+  document.getElementById("searchInput")?.addEventListener("keyup", function() {
+    const f = this.value.toLowerCase();
+    cards.forEach(c => { c.style.display = c.innerText.toLowerCase().includes(f) ? "flex" : "none"; });
+  });
+
+});
+</script>
+{% endblock %}

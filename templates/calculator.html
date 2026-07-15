@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Hesap Makinesi – NAKITDEFTER{% endblock %}
+
+{% block content %}
+
+
+<div class="page-header">
+  <h1>Hesap Makinesi</h1>
+  <p class="page-sub">Temel hesaplama ve finansal tahminler</p>
+</div>
+
+<div class="calc-page">
+
+  <!-- Basic calculator — centered -->
+  <div class="calc-box">
+    <h2>Hesap Makinesi</h2>
+    <div class="calc-display" id="calcDisplay">0</div>
+    <div class="calc-grid">
+      <button class="calc-btn op" onclick="calcClear()">C</button>
+      <button class="calc-btn op" onclick="calcSign()">+/−</button>
+      <button class="calc-btn op" onclick="calcPercent()">%</button>
+      <button class="calc-btn op accent" onclick="calcOp('/')">÷</button>
+
+      <button class="calc-btn" onclick="calcNum('7')">7</button>
+      <button class="calc-btn" onclick="calcNum('8')">8</button>
+      <button class="calc-btn" onclick="calcNum('9')">9</button>
+      <button class="calc-btn op accent" onclick="calcOp('*')">×</button>
+
+      <button class="calc-btn" onclick="calcNum('4')">4</button>
+      <button class="calc-btn" onclick="calcNum('5')">5</button>
+      <button class="calc-btn" onclick="calcNum('6')">6</button>
+      <button class="calc-btn op accent" onclick="calcOp('-')">−</button>
+
+      <button class="calc-btn" onclick="calcNum('1')">1</button>
+      <button class="calc-btn" onclick="calcNum('2')">2</button>
+      <button class="calc-btn" onclick="calcNum('3')">3</button>
+      <button class="calc-btn op accent" onclick="calcOp('+')">+</button>
+
+      <button class="calc-btn wide" onclick="calcNum('0')">0</button>
+      <button class="calc-btn" onclick="calcDot()">.</button>
+      <button class="calc-btn eq" onclick="calcEquals()">=</button>
+    </div>
+  </div>
+
+  <!-- Financial pair: Savings estimate | Loan installment -->
+  <div class="fin-pair">
+
+    <!-- Savings estimate -->
+    <div class="fin-box">
+      <h2>Birikim Tahmini</h2>
+      <p class="fin-desc">Aylık ne kadar biriktirirseniz hedefinize ne zaman ulaşırsınız?</p>
+      <div class="fin-form">
+        <label>Hedef Tutar (₺)</label>
+        <input type="number" id="sGoal"    placeholder="{{ '30000' }}" min="0">
+        <label>Aylık Birikim (₺)</label>
+        <input type="number" id="sSave"    placeholder="{{ '2000' }}"  min="0">
+        <label>Mevcut Birikim (₺)</label>
+        <input type="number" id="sCurrent" placeholder="{{ '0' }}"     min="0">
+        <button class="fin-btn" onclick="calcSavings()">Hesapla</button>
+        <div class="fin-result" id="sResult"></div>
+      </div>
+    </div>
+
+    <!-- Loan / installment -->
+    <div class="fin-box">
+      <h2>Taksit Hesaplama</h2>
+      <p class="fin-desc">Kredi veya taksitli alım için aylık ödeme tutarı.</p>
+      <div class="fin-form">
+        <label>Kredi Tutarı (₺)</label>
+        <input type="number" id="lAmount" placeholder="100000" min="0">
+        <label>Yıllık Faiz Oranı (%)</label>
+        <input type="number" id="lRate"   placeholder="36"    min="0" step="0.1">
+        <label>Vade (Ay)</label>
+        <input type="number" id="lMonths" placeholder="24"    min="1">
+        <button class="fin-btn" onclick="calcLoan()">Hesapla</button>
+        <div class="fin-result" id="lResult"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+const LANG = "tr";
+
+/* Basic calculator */
+let cur="0", prev=null, op=null, newNum=true;
+const disp = () => document.getElementById("calcDisplay").textContent = cur;
+const fmt  = n => parseFloat(n.toFixed(8)).toLocaleString("tr-TR", {maximumFractionDigits:8});
+
+function calcNum(d)    { cur = newNum ? d : (cur==="0" ? d : cur+d); newNum=false; disp(); }
+function calcDot()     { if(newNum){cur="0.";newNum=false;} else if(!cur.includes(".")) cur+="."; disp(); }
+function calcSign()    { cur=String(-parseFloat(cur)); disp(); }
+function calcPercent() { cur=String(parseFloat(cur)/100); disp(); }
+function calcClear()   { cur="0"; prev=null; op=null; newNum=true; disp(); }
+
+function calcOp(o) {
+  if (prev !== null) calcEquals();
+  prev=parseFloat(cur); op=o; newNum=true;
+}
+
+function calcEquals() {
+  if (op===null || prev===null) return;
+  const a=prev, b=parseFloat(cur);
+  const r = {"+":a+b, "-":a-b, "*":a*b, "/":b!==0?a/b:"Hata"}[op];
+  cur=fmt(r); prev=null; op=null; newNum=true; disp();
+}
+
+/* Financial calculators */
+const fmt2 = n => n.toLocaleString("tr-TR", {minimumFractionDigits:2, maximumFractionDigits:2});
+const res  = (id, html) => document.getElementById(id).innerHTML = html;
+const err  = msg => `<span class='err'>${msg}</span>`;
+const fillErr = LANG==="en" ? "Please fill all fields." : "Lütfen tüm alanları doldurun.";
+
+function calcSavings() {
+  const goal=+document.getElementById("sGoal").value;
+  const save=+document.getElementById("sSave").value;
+  const cur_ =+document.getElementById("sCurrent").value||0;
+  if (!goal||!save) { res("sResult", err(fillErr)); return; }
+  const rem    = Math.max(0, goal-cur_);
+  const months = Math.ceil(rem/save);
+  const yrs=Math.floor(months/12), mo=months%12;
+  const dur = LANG==="en"
+    ? (yrs>0 ? `${yrs} yr${mo>0?" "+mo+" mo":""}` : `${months} months`)
+    : (yrs>0 ? `${yrs} yıl ${mo>0?mo+" ay":""}` : `${months} ay`);
+  const inLabel   = LANG==="en" ? "In" : "";
+  const youLabel  = LANG==="en" ? `In <strong>${dur}</strong> you'll reach your goal.` : `<strong>${dur}</strong> içinde hedefe ulaşırsınız.`;
+  res("sResult", `${youLabel}<br><small>${LANG==="en"?"Remaining":"Kalan"}: ₺${fmt2(rem)}</small>`);
+}
+
+function calcLoan() {
+  const P=+document.getElementById("lAmount").value;
+  const r=+document.getElementById("lRate").value/100/12;
+  const n=+document.getElementById("lMonths").value;
+  if (!P||!r||!n) { res("lResult", err(fillErr)); return; }
+  const pmt   = r===0 ? P/n : P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  const total = pmt*n;
+  const labels = LANG==="en"
+    ? ["Monthly payment","Total repayment","Total interest"]
+    : ["Aylık taksit","Toplam geri ödeme","Toplam faiz"];
+  res("lResult",
+    `${labels[0]}: <strong>₺${fmt2(pmt)}</strong><br>
+     ${labels[1]}: ₺${fmt2(total)}<br>
+     ${labels[2]}: ₺${fmt2(total-P)}`
+  );
+}
+</script>
+{% endblock %}

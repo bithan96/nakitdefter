@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>NAKITDEFTER – Başlayalım</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="auth-bg">
+
+    <!-- HEADER -->
+    <div class="app-header">
+        <div class="app-title">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+            <span>NAKITDEFTER</span>
+        </div>
+        <div class="app-divider"></div>
+    </div>
+
+    <!-- ONBOARDING CONTENT -->
+    <div class="onboard-container">
+        <img src="{{ url_for('static', filename='images/onboarding_goal.png') }}" class="onboard-img">
+
+    
+        <a href="/login" class="onboard-btn">Hazırsan Başlayalım</a>
+    </div>
+
+</body>
+</html>

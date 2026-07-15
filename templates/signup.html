@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <title>NAKITDEFTER – Kayıt Ol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="auth-bg">
+
+   <div class="app-header">
+        <div class="app-title">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+            <span>NAKITDEFTER</span>
+        </div>
+        <div class="app-divider"></div>
+    </div>
+    <!-- Centered welcome area -->
+    <div class="auth-container">
+        <h1 class="welcome-title">Nakitdefter’e Hoş Geldiniz 👋</h1>
+
+        <!-- Registration box -->
+        <div class="auth-box">
+            <h2 class="box-title">Kayıt Ol</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert {{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+            <form action="{{ url_for('signup') }}" method="POST" id="registerForm" novalidate>
+
+                <!-- Username -->
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Kullanıcı Adı"
+                    class="input-large"
+                    required
+                >
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Şifre"
+                  required
+                  class="input-large">
+
+
+                <!-- Email -->
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="E-posta Adresi"
+                    class="input-large"
+                    required
+                >
+
+                <button type="submit" class="auth-btn">Kayıt Ol</button>
+            </form>
+
+            <!-- Login redirect -->
+            <p class="redirect-text">
+                Zaten bir hesabınız var mı?
+                <a href="/login">Giriş Yapın</a>
+            </p>
+        </div>
+
+        <!-- Terms text -->
+        <p class="terms-text">
+            Devam ederek, Hizmet Şartlarımızı ve Gizlilik Politikamızı kabul etmiş olursunuz.
+        </p>
+    </div>
+
+    <!-- Turkish validation script -->
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("input[required]").forEach(input => {
+            input.addEventListener("invalid", (e) => {
+                e.preventDefault();
+                input.setCustomValidity("Lütfen bu alanı doldurun.");
+            });
+            input.addEventListener("input", () => {
+                input.setCustomValidity("");
+            });
+        });
+    });
+    </script>
+
+</body>
+</html>
