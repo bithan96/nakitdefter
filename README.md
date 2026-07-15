@@ -2,7 +2,7 @@
 
 A personal budget and expense tracking web application built with Flask.
 
-![Dashboard Demo](Desktop/NakitDefter.gif)
+![Dashboard Demo](screenshots/NakitDefter.gif)
 
 ## Features
 - Email OTP verification on signup (via Brevo API)
