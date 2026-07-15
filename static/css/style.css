@@ -12,7 +12,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── Auth background ────────────────────────────────── */
+/* Auth background  */
 body.auth-bg {
   background:
     radial-gradient(circle 420px at -80px -80px,
@@ -23,14 +23,14 @@ body.auth-bg {
   min-height: 100vh;
 }
 
-/* ─── App layout ─────────────────────────────────────── */
+/*  App layout  */
 body.app-layout {
   display: flex;
   min-height: 100vh;
   background: rgb(240,250,97); /* dim yellowish — adjust hex to taste */
 }
 
-/* ─── Sidebar ─────────────────────────────────────────── */
+/*  Sidebar  */
 .sidebar {
   width: 210px;
   min-height: 100vh;
@@ -136,13 +136,7 @@ body.app-layout {
   color: #fff;
 }
 
-
-
-
-
-
-
-/* ─── Main content ────────────────────────────────────── */
+/*  Main content  */
 .main-content {
   margin-left: 210px;  /* must match sidebar width above */
   flex: 1;
@@ -189,32 +183,7 @@ body.app-layout {
   border: 1px solid #a3e6b3;
 }
 
-/* ═══════════════════════════════════════════════════════
-   BOX SIZING — edit these values to resize each section
-
-   STAT CARDS
-     stats-grid gap ............ 16px   (space between the 4 cards)
-     stat-card padding ......... 18px 22px
-     stat-label font-size ...... 13px
-     stat-value font-size ....... 22px
-
-   DASHBOARD ROWS
-     dash-row gap .............. 20px   (space between boxes in a row)
-     dash-row margin-bottom ..... 20px   (space between rows)
-     dash-box padding .......... 22px 24px
-
-   BOX WIDTHS  (flex: 0 0 Xpx = fixed width)
-     box-entry ................. flex: 0 0 300px
-     box-donut .................. flex: 1  (fills row)
-     box-goal ................... flex: 0 0 300px
-     box-analytics .............. flex: 1  (fills row)
-     box-tx max-width ........... 640px
-
-   CHART HEIGHT
-     .chart-wrap height ........ 200px
-   ═══════════════════════════════════════════════════════ */
-
-/* ─── Stat cards ──────────────────────────────────────── */
+/* Stat cards  */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -249,7 +218,7 @@ body.app-layout {
   display: block;
 }
 
-/* ─── Dashboard rows ──────────────────────────────────── */
+/*  Dashboard rows  */
 .dash-row {
   display: flex;
   gap: 20px;          /* ← gap between boxes in same row */
@@ -257,7 +226,7 @@ body.app-layout {
   align-items: flex-start;
 }
 
-/* ─── Box base ────────────────────────────────────────── */
+/*  Box base  */
 .dash-box {
   background: #fff;
   border-radius: 18px;
@@ -279,14 +248,14 @@ body.app-layout {
   margin-bottom: 16px;
 }
 
-/* ─── Individual box widths ───────────────────────────── */
+/*  Individual box widths  */
 
 .box-entry {
-  flex: 0 0 335px;    /* ← Yeni Kayıt width — change 300px */
+  flex: 0 0 335px;    
 }
 
 .box-donut {
-  flex: 1;            /* fills remaining row width */
+  flex: 1;            
 }
 
 .box-donut canvas {
@@ -296,20 +265,20 @@ body.app-layout {
 }
 
 .box-goal {
-  flex: 0 0 335px;    /* ← Tasarruf Hedefi width — change 300px */
+  flex: 0 0 335px;
 }
 
 .box-analytics {
-  flex: 1;            /* fills remaining row width */
+  flex: 1;            
   min-width: 0;
 }
 
 .box-tx {
   width: 100%;
-  max-width: 620px;   /* ← Son İşlemler max width — change 640px */
+  max-width: 620px;   
 }
 
-/* ─── Entry form ──────────────────────────────────────── */
+/* Entry form */
 .entry-form {
   display: flex;
   flex-direction: column;
@@ -348,7 +317,7 @@ body.app-layout {
   background: #002f6c;
 }
 
-/* ─── Goal form ───────────────────────────────────────── */
+/*  Goal form */
 .goal-form {
   display: flex;
   flex-direction: column;
@@ -417,7 +386,7 @@ body.app-layout {
   background: #155a96;
 }
 
-/* ─── Analytics card ──────────────────────────────────── */
+/*  Analytics card  */
 .analytics-card {
   background: #eef4ff;
   border-radius: 14px;
@@ -501,7 +470,7 @@ body.app-layout {
 .chart-wrap {
   position: relative;
   width: 100%;
-  height: 200px;      /* ← analytics chart height — change here */
+  height: 200px;      
 }
 
 .chart-legend {
@@ -547,7 +516,7 @@ body.app-layout {
   margin-top: 4px;
 }
 
-/* ─── Transactions ────────────────────────────────────── */
+/*  Transactions  */
 .search-input {
   width: 100%;
   padding: 11px 14px;
@@ -638,7 +607,7 @@ body.app-layout {
   background: #32383e;
 }
 
-/* ─── Bank page ───────────────────────────────────────── */
+/*  Bank page  */
 .bank-section {
   margin-bottom: 32px;
 }
@@ -894,11 +863,6 @@ body.app-layout {
   color: #333;
 }
 
-/* ═══════════════════════════════════════════════════════
-   CALCULATOR SIZING
-     calc-box width ............ 360px  (basic calculator)
-     fin-pair width ............. 760px (both financial boxes)
-   ═══════════════════════════════════════════════════════ */
 
 .calc-page {
   display: flex;
@@ -908,10 +872,10 @@ body.app-layout {
 }
 
 .calc-box {
-  width: 396px;       /* ← 360px + 10% */
+  width: 396px;       
   background: #fff;
   border-radius: 22px;
-  padding: 22px;      /* reduced from 28px — shrinks overall height ~10% */
+  padding: 22px;     
   box-shadow: 0 6px 28px rgba(0,0,0,.1);
 }
 
@@ -926,24 +890,24 @@ body.app-layout {
 .calc-display {
   background: #1a1a2e;
   color: #fff;
-  font-size: 34px;     /* slightly smaller */
+  font-size: 34px;     
   font-weight: 300;
   text-align: right;
-  padding: 16px 18px 10px; /* reduced */
+  padding: 16px 18px 10px; 
   border-radius: 14px;
-  margin-bottom: 12px; /* reduced */
-  min-height: 68px;    /* 80px - ~10% */
+  margin-bottom: 12px; 
+  min-height: 68px;    
   word-break: break-all;
 }
 
 .calc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;            /* reduced from 10px */
+  gap: 8px;           
 }
 
 .calc-btn {
-  padding: 15px 8px;   /* reduced from 18px */
+  padding: 15px 8px;   
   border: none;
   border-radius: 14px;
   font-size: 19px;
@@ -994,7 +958,7 @@ body.app-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  width: 760px;       /* ← change to resize both financial boxes */
+  width: 760px;       
   max-width: 100%;
 }
 
@@ -1089,7 +1053,7 @@ body.app-layout {
   color: #d33;
 }
 
-/* ─── Auth pages ──────────────────────────────────────── */
+/* Auth pages */
 .auth-container {
   max-width: 450px;
   margin: 38px auto;
@@ -1353,7 +1317,7 @@ body.app-layout {
   background: #ffe5e5;
 }
 
-/* ─── Top header bar ──────────────────────────────────── */
+/* Top header bar */
 .app-topbar {
   display: flex;
   align-items: center;
@@ -1372,7 +1336,7 @@ body.app-layout {
   position: relative;
 }
 
-/* ─── Profile button ──────────────────────────────────── */
+/* Profile button  */
 .profile-btn {
   background: none;
   border: 2px solid  rgb(240,250,97);
@@ -1416,9 +1380,7 @@ body.app-layout {
   transition: transform .2s;
 }
 
-
-
-/* ─── Profile dropdown ────────────────────────────────── */
+/*  Profile dropdown  */
 .profile-dropdown {
   position: absolute;
   top: calc(100% + 8px);
