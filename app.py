@@ -11,7 +11,7 @@ from datetime import datetime, date
 init_db()
 
 app = Flask(__name__)
-app.secret_key = "nakitdefter_secret"
+app.secret_key = os.environ.get("SECRET_KEY")
 
 # Email (Brevo) 
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
